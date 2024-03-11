@@ -15,10 +15,10 @@ function Home() {
   console.log(items);
 
   const renderItems = () => {
-    //  const filtredItems = items.filter((item) =>
-    //    item.title.toLowerCase().includes(searchValue.toLowerCase())
-    //  );
-    return (isLoading ? [...Array(8)] : items).map((item, index) => (
+     const filtredItems = items.filter((item) =>
+       item.title.toLowerCase().includes(searchValue.toLowerCase())
+     );
+    return (isLoading ? [...Array(8)] : filtredItems).map((item, index) => (
       <Card
         key={index}
         onFavorite={(obj) => onAddToFavorite(obj)}

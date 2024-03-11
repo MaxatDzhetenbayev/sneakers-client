@@ -12,20 +12,12 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     async function fetchData() {
-      try {
         const [itemsResponse, favoritsResponse] = await Promise.all([
           axios.get("http://localhost:3000/items"),
-          axios.get(
-            "https://65d23604987977636bfc19a1.mockapi.io/api/v1/favorits"
-          ),
         ]);
         setIsLoading(false);
         setItems(itemsResponse.data);
         setFavorites(favoritsResponse.data);
-      } catch (error) {
-        alert("Ошибка при запросе данных ;(");
-        console.error(error);
-      }
     }
 
     fetchData();

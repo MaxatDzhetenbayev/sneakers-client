@@ -8,7 +8,7 @@ import styles from "./Card.module.scss";
 function Card({
   id,
   title,
-  image,
+  imageurl,
   price,
   onFavorite,
   onPlus,
@@ -17,7 +17,7 @@ function Card({
 }) {
   const { isItemAdded } = React.useContext(AppContext);
   const [isFavorite, setIsFavorite] = React.useState(favorited);
-  const obj = { id, parentId: id, title, image, price };
+  const obj = { id, parentId: id, title, imageurl, price };
 
   const onClickPlus = () => {
     onPlus(obj);
@@ -58,14 +58,14 @@ function Card({
           <img
             width="100%"
             height={135}
-            src={"http://localhost:3000/" + image}
+            src={"http://localhost:3000/" + imageurl}
             alt="Sneakers"
           />
           <h5>{title}</h5>
           <div className="d-flex justify-between align-center">
             <div className="d-flex flex-column">
               <span>Цена:</span>
-              <b>{price} руб.</b>
+              <b>{price} тенге.</b>
             </div>
             {onPlus && (
               <img
