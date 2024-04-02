@@ -1,9 +1,9 @@
 import React from "react";
-import { AppContext } from "../context";
+import { CartContext } from "../contexts/cartContext";
 
 export const useCart = () => {
-  const { cartItems, setCartItems } = React.useContext(AppContext);
+  const { cartItems } = React.useContext(CartContext);
   const totalPrice = cartItems.reduce((sum, obj) => obj.price + sum, 0);
 
-  return { cartItems, setCartItems, totalPrice };
+  return { totalPrice };
 };

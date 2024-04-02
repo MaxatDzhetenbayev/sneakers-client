@@ -1,8 +1,8 @@
 import React from "react";
-import { AppContext } from "../context";
+import { CartContext } from '../contexts/cartContext';
 
 const Info = ({ title, image, description }) => {
-  const { setCartOpened } = React.useContext(AppContext);
+  const { setCartOpened } = React.useContext(CartContext);
 
   return (
     <div className="cartEmpty d-flex align-center justify-center flex-column flex">

@@ -1,23 +1,26 @@
 import React, { useContext } from "react";
 import { AppContext } from "../context";
 import Card from "../components/Card";
+import { useQuery } from "react-query";
 
 function Home() {
   const {
-    items,
     searchValue,
     setSearchValue,
     onChangeSearchInput,
     onAddToFavorite,
     //  onAddToCart,
-    isLoading,
   } = useContext(AppContext);
-  console.log(items);
 
   const renderItems = () => {
-     const filtredItems = items.filter((item) =>
-       item.title.toLowerCase().includes(searchValue.toLowerCase())
-     );
+    const { isLoading, data } = useQuery("repoData", () =>
+      fetch("http://localhost:3000/items").then((response) => response.json())
+    );
+
+    const filtredItems = data?.filter((item) =>
+      item.title.toLowerCase().includes(searchValue.toLowerCase())
+    );
+
     return (isLoading ? [...Array(8)] : filtredItems).map((item, index) => (
       <Card
         key={index}

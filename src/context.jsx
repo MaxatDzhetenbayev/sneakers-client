@@ -12,18 +12,17 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     async function fetchData() {
-        const [itemsResponse, favoritsResponse] = await Promise.all([
-          axios.get("http://localhost:3000/items"),
-        ]);
-        setIsLoading(false);
-        setItems(itemsResponse.data);
-        setFavorites(favoritsResponse.data);
+      const [itemsResponse, favoritsResponse] = await Promise.all([
+        axios.get("http://localhost:3000/items"),
+        axios.get("http://localhost:3000/favorites"),
+      ]);
+      setIsLoading(false);
+      setItems(itemsResponse.data);
+      setFavorites(favoritsResponse.data);
     }
 
     fetchData();
   }, []);
-
-  console.log(items);
 
   //   const onAddToCart = async (obj) => {
   //     try {
@@ -74,19 +73,19 @@ export const AppProvider = ({ children }) => {
   };
 
   const onAddToFavorite = async (obj) => {
+    console.log(obj.favoriteId);
     try {
-      if (favorites.find((favObj) => Number(favObj.id) === Number(obj.id))) {
-        axios.delete(
-          `https://65d23604987977636bfc19a1.mockapi.io/api/v1/favorits${obj.id}`
-        );
+      if (
+        favorites.find((favObj) => Number(favObj.id) === Number(obj.favoriteId))
+      ) {
+        axios.delete(`http://localhost:3000/favorites${obj.id}`);
         setFavorites((prev) =>
-          prev.filter((item) => Number(item.id) !== Number(obj.id))
+          prev.filter((item) => Number(item.id) !== Number(obj.favoriteId))
         );
       } else {
-        const { data } = await axios.post(
-          "https://65d23604987977636bfc19a1.mockapi.io/api/v1/favorits",
-          obj
-        );
+        const { data } = await axios.post("http://localhost:3000/favorites", {
+          itemid: obj.id,
+        });
         setFavorites((prev) => [...prev, data]);
       }
     } catch (error) {

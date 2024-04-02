@@ -3,24 +3,26 @@ import { Outlet } from "react-router-dom";
 import Header from "./components/Header";
 import Drawer from "./components/Drawer";
 import { AppContext } from "./context";
-
+import { CartContext } from "./contexts/cartContext";
 function App() {
   const {
-    items: cartItems,
+    removeItemToCart,
+    cartItems,
     cartOpened,
-    onRemoveItem,
     setCartOpened,
-  } = useContext(AppContext);
+    onRemoveItem,
+  } = useContext(CartContext);
+
   return (
     <div className="wrapper clear">
-      {/* <Drawer
+      {/* <Header /> */}
+      <Drawer
         items={cartItems}
         onClose={() => setCartOpened(false)}
-        onRemove={onRemoveItem}
+        onRemove={removeItemToCart}
         opened={cartOpened}
-      /> */}
-
-      {/* <Header onClickCart={() => setCartOpened(true)} /> */}
+      />
+      <Header />
       <Outlet />
     </div>
   );

@@ -4,6 +4,7 @@ import ContentLoader from "react-content-loader";
 import { AppContext } from "../../context";
 
 import styles from "./Card.module.scss";
+import { CartContext } from "../../contexts/cartContext";
 
 function Card({
   id,
@@ -11,14 +12,21 @@ function Card({
   imageurl,
   price,
   onFavorite,
+  favorite: isFavorited = false,
   onPlus,
-  favorited = false,
   loading = false,
 }) {
   const { isItemAdded } = React.useContext(AppContext);
-  const [isFavorite, setIsFavorite] = React.useState(favorited);
-  const obj = { id, parentId: id, title, imageurl, price };
-
+  const { addItemToCart } = React.useContext(CartContext);
+  const [isFavorite, setIsFavorite] = React.useState(isFavorited);
+  const obj = {
+    id,
+    //  parentId: id,
+    title,
+    imageurl,
+    price,
+    //  favoriteId: isFavorited?.itemid,
+  };
   const onClickPlus = () => {
     onPlus(obj);
   };
@@ -70,7 +78,7 @@ function Card({
             {onPlus && (
               <img
                 className={styles.plus}
-                onClick={onClickPlus}
+                onClick={() => addItemToCart(obj)}
                 src={
                   isItemAdded(id) ? "img/btn-checked.svg" : "img/btn-plus.svg"
                 }
