@@ -66,7 +66,7 @@ function Card({
           <img
             width="100%"
             height={135}
-            src={"http://localhost:3000/" + imageurl}
+            src={imageurl}
             alt="Sneakers"
           />
           <h5>{title}</h5>

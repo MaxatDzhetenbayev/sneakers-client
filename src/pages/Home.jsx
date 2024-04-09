@@ -1,35 +1,42 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context";
 import Card from "../components/Card";
-import { useQuery } from "react-query";
-
+import { addClothes, getAllClothes } from "../api/clothes";
 function Home() {
-  const {
-    searchValue,
-    setSearchValue,
-    onChangeSearchInput,
-    onAddToFavorite,
-    //  onAddToCart,
-  } = useContext(AppContext);
+  const { searchValue, setSearchValue, onChangeSearchInput, onAddToFavorite } =
+    useContext(AppContext);
 
   const renderItems = () => {
-    const { isLoading, data } = useQuery("repoData", () =>
-      fetch("http://localhost:3000/items").then((response) => response.json())
-    );
+    const [clothes, setClothes] = useState();
+    const [isLoading, setIsLoading] = useState(true);
 
-    const filtredItems = data?.filter((item) =>
-      item.title.toLowerCase().includes(searchValue.toLowerCase())
-    );
+    useEffect(async () => {
+      setIsLoading(true);
+      const data = await getAllClothes();
+      setIsLoading(false);
+      setClothes(data);
+    }, []);
 
-    return (isLoading ? [...Array(8)] : filtredItems).map((item, index) => (
-      <Card
-        key={index}
-        onFavorite={(obj) => onAddToFavorite(obj)}
-        onPlus={(obj) => onAddToCart(obj)}
-        loading={isLoading}
-        {...item}
-      />
-    ));
+    console.log(clothes);
+
+    const filtredItems = clothes?.filter((item) => {
+      console.log(item);
+      return item.title.toLowerCase().includes(searchValue.toLowerCase());
+    });
+
+    return (
+      <>
+        {(isLoading ? [...Array(8)] : filtredItems).map((item, index) => (
+          <Card
+            key={index}
+            onFavorite={(obj) => onAddToFavorite(obj)}
+            onPlus={(obj) => onAddToCart(obj)}
+            loading={isLoading}
+            {...item}
+          />
+        ))}
+      </>
+    );
   };
 
   return (
