@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ContentLoader from "react-content-loader";
-
-import { AppContext } from "../../context";
 
 import styles from "./Card.module.scss";
 import { CartContext } from "../../contexts/cartContext";
+import { addFavorits, addToCart } from "../../api/clothes";
+import { useAuth } from "../../hooks/useAuth";
 
 function Card({
   id,
@@ -12,29 +12,18 @@ function Card({
   imageurl,
   price,
   onFavorite,
-  favorite: isFavorited = false,
   onPlus,
   loading = false,
 }) {
-  const { isItemAdded } = React.useContext(AppContext);
   const { addItemToCart } = React.useContext(CartContext);
-  const [isFavorite, setIsFavorite] = React.useState(isFavorited);
   const obj = {
     id,
-    //  parentId: id,
     title,
     imageurl,
     price,
-    //  favoriteId: isFavorited?.itemid,
-  };
-  const onClickPlus = () => {
-    onPlus(obj);
   };
 
-  const onClickFavorite = () => {
-    onFavorite(obj);
-    setIsFavorite(!isFavorite);
-  };
+  const user = useAuth();
 
   return (
     <div className={styles.card}>
@@ -56,19 +45,17 @@ function Card({
       ) : (
         <>
           {onFavorite && (
-            <div className={styles.favorite} onClick={onClickFavorite}>
+            <div
+              className={styles.favorite}
+              onClick={() => addFavorits(user?.uid, id)}
+            >
               <img
-                src={isFavorite ? "img/liked.svg" : "img/unliked.svg"}
+                src={false ? "img/liked.svg" : "img/unliked.svg"}
                 alt="Unliked"
               />
             </div>
           )}
-          <img
-            width="100%"
-            height={135}
-            src={imageurl}
-            alt="Sneakers"
-          />
+          <img width="100%" height={135} src={imageurl} alt="Sneakers" />
           <h5>{title}</h5>
           <div className="d-flex justify-between align-center">
             <div className="d-flex flex-column">
@@ -78,10 +65,8 @@ function Card({
             {onPlus && (
               <img
                 className={styles.plus}
-                onClick={() => addItemToCart(obj)}
-                src={
-                  isItemAdded(id) ? "img/btn-checked.svg" : "img/btn-plus.svg"
-                }
+                onClick={() => addToCart(user?.uid, id)}
+                src={false ? "img/btn-checked.svg" : "img/btn-plus.svg"}
                 alt="Plus"
               />
             )}

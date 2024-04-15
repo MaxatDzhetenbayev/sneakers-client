@@ -1,39 +1,29 @@
-import React from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 import Info from "../Info";
-import { useCart } from "../../hooks/useCart";
 
 import styles from "./Drawer.module.scss";
+import { getCartProducts } from "../../api/clothes";
+import { useAuth } from "../../hooks/useAuth";
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-function Drawer({ onClose, onRemove, items = [], opened }) {
-  const { cartItems, setCartItems, totalPrice } = useCart();
-  console.log(items);
-  const [orderId, setOrderId] = React.useState(null);
+function Drawer({ onClose, opened }) {
+  const [items, setItems] = useState([]);
   const [isOrderComplete, setIsOrderComplete] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const onClickOrder = async () => {
-    try {
-      setIsLoading(true);
-      // const { data } = await axios.post("/orders", {
-      //   items: cartItems,
-      // });
-      // setOrderId(data.id);
-      // setIsOrderComplete(true);
-      setCartItems([]);
+  const user = useAuth();
 
-      // for (let i = 0; i < cartItems.length; i++) {
-      //   const item = cartItems[i];
-      //   await axios.delete("/cart/" + item.id);
-      //   await delay(1000);
-      // }
-    } catch (error) {
-      alert("Ошибка при создании заказа :(");
-    }
-    setIsLoading(false);
+  useEffect(() => {
+    const handleGetCarts = async () => {
+      const data = await getCartProducts(user?.uid);
+      setItems(data);
+    };
+
+     handleGetCarts();
+  }, []);
+
+  const onClickOrder = async () => {
+
   };
 
   return (
@@ -59,9 +49,7 @@ function Drawer({ onClose, onRemove, items = [], opened }) {
                 >
                   <div
                     style={{
-                      backgroundImage: `url(${
-                        "http://localhost:3000/" + obj.imageurl
-                      })`,
+                      backgroundImage: `url(${obj.imageurl})`,
                     }}
                     className="cartItemImg"
                   ></div>
@@ -84,12 +72,15 @@ function Drawer({ onClose, onRemove, items = [], opened }) {
                 <li>
                   <span>Итого:</span>
                   <div></div>
-                  <b>{totalPrice} тг. </b>
+                  {/* total */}
+
+                  <b>{0} тг. </b>
                 </li>
                 <li>
                   <span>Налог 5%:</span>
                   <div></div>
-                  <b>{(totalPrice / 100) * 5} тг. </b>
+                  {/* total */}
+                  <b>{(0 / 100) * 5} тг. </b>
                 </li>
               </ul>
               <button

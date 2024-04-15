@@ -1,27 +1,26 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AppContext } from "../context";
+import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
-import { addClothes, getAllClothes } from "../api/clothes";
+import { getAllClothes } from "../api/clothes";
+
 function Home() {
-  const { searchValue, setSearchValue, onChangeSearchInput, onAddToFavorite } =
-    useContext(AppContext);
+  const [searchValue, setSearchValue] = useState("");
 
   const renderItems = () => {
     const [clothes, setClothes] = useState();
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(async () => {
-      setIsLoading(true);
-      const data = await getAllClothes();
-      setIsLoading(false);
-      setClothes(data);
+    useEffect(() => {
+      const handleGetAllClothes = async () => {
+        setIsLoading(true);
+        const data = await getAllClothes();
+        setIsLoading(false);
+        setClothes(data);
+      };
+      handleGetAllClothes();
     }, []);
 
-    console.log(clothes);
-
     const filtredItems = clothes?.filter((item) => {
-      console.log(item);
-      return item.title.toLowerCase().includes(searchValue.toLowerCase());
+      return item.title.toLowerCase().includes(searchValue.toLocaleLowerCase());
     });
 
     return (
@@ -43,7 +42,7 @@ function Home() {
     <div className="content p-40">
       <div className="d-flex align-center justify-between mb-40">
         <h1>
-          {searchValue ? `Поиск по запросу: "${searchValue}"` : "Все кроссовки"}
+          {searchValue ? `Поиск по запросу: "${searchValue}"` : "Вся одежда"}
         </h1>
         <div className="search-block d-flex">
           <img src="img/search.svg" alt="Search" />
@@ -56,7 +55,7 @@ function Home() {
             />
           )}
           <input
-            onChange={onChangeSearchInput}
+            onChange={(e) => setSearchValue(e.target.value)}
             value={searchValue}
             placeholder="Поиск..."
           />

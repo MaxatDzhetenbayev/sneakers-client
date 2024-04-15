@@ -1,9 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
-import {AppContext} from "../context";
+import { useAuth } from "../hooks/useAuth";
+import { getFavoriteProducts } from "../api/clothes";
 
 function Favorites() {
-  const { favorites, onAddToFavorite } = React.useContext(AppContext);
+  const user = useAuth();
+  const [products, setProducts] = useState();
+  useEffect(() => {
+    const handleGetProducts = async () => {
+      const data = await getFavoriteProducts("wB0bpuGEwDh3kCBiQctJipEDjxj1");
+      setProducts(data);
+    };
+
+    handleGetProducts();
+  }, [user?.uid]);
+  console.log(products);
 
   return (
     <div className="content p-40">
@@ -12,11 +23,11 @@ function Favorites() {
       </div>
 
       <div className="d-flex flex-wrap">
-        {favorites.map((item, index) => (
+        {products?.map((item, index) => (
           <Card
             key={index}
             favorited={true}
-            onFavorite={onAddToFavorite}
+            // onFavorite={onAddToFavorite}
             {...item}
           />
         ))}
