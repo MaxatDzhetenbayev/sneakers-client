@@ -6,11 +6,13 @@ import "macro-css";
 import App from "./App";
 import Home from "./pages/Home";
 import Favorites from "./pages/Favorites";
-import Orders from "./pages/Orders";
 import { CartProvider } from "./contexts/cartContext";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { AuthCheck } from "./components/AuthCheck";
+import { Profile } from "./pages/Profile";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const router = createBrowserRouter([
   {
@@ -32,7 +34,7 @@ const router = createBrowserRouter([
           </AuthCheck>
         ),
       },
-      // { path: "orders", element: <Orders /> },
+      { path: "profile", element: <Profile /> },
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
     ],
@@ -43,6 +45,7 @@ const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(
   <CartProvider>
-      <RouterProvider router={router}></RouterProvider>
+    <RouterProvider router={router}></RouterProvider>
+    <ToastContainer />
   </CartProvider>
 );

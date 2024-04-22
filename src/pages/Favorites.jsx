@@ -8,7 +8,7 @@ function Favorites() {
   const [products, setProducts] = useState();
   useEffect(() => {
     const handleGetProducts = async () => {
-      const data = await getFavoriteProducts("wB0bpuGEwDh3kCBiQctJipEDjxj1");
+      const data = await getFavoriteProducts(user?.uid);
       setProducts(data);
     };
 

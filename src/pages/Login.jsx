@@ -1,33 +1,48 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../firebaseConfig";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const navigate = useNavigate();
+
   const handleSignIn = async () => {
     try {
-      signInWithEmailAndPassword(auth, email, password);
-      console.log(user);
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      if (response.user) {
+        navigate("/");
+      }
     } catch (e) {
-      console.log(e.message);
+      toast.error(e.message);
     }
   };
 
   return (
-    <div>
+    <div className="form">
+      <h1>Войти</h1>
       <input
+        className="input"
         type="text"
+        placeholder="Введите ваш логин"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
-        type="text"
+        className="input"
+        placeholder="Введите ваш пароль"
+        type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleSignIn}>Войти</button>
+      <Link to="/register">Нет аккаунта?</Link>
+      <button className="button button__green" onClick={handleSignIn}>
+        Войти
+      </button>
     </div>
   );
 };

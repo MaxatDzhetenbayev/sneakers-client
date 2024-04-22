@@ -12,6 +12,7 @@ import {
   setDoc,
   where,
   getDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { v4 as uuid } from "uuid";
@@ -100,6 +101,30 @@ export const addToCart = async (userId, productId) => {
   }
 };
 
+export const removeFromCart = async (userId, productId) => {
+	console.log(userId)
+	console.log(productId)
+  try {
+    const q = query(
+      collection(db, "carts"),
+      where("userId", "==", userId),
+      where("productId", "==", productId)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const document = querySnapshot.docs[0];
+      await deleteDoc(doc(db, "carts", document.id));
+      console.log("Удален продукт из корзины с ID: ", document.id);
+    } else {
+      console.log("Не найдено продуктов в корзине для удаления.");
+    }
+  } catch (error) {
+    console.error("Ошибка при удалении продукта из корзины: ", error);
+  }
+};
+
 export const getAllCartProducts = async () => {
   const clothesCollectionRef = collection(db, "clothes");
   const data = await getDocs(clothesCollectionRef);
@@ -133,3 +158,15 @@ export async function getCartProducts(userId) {
     console.error("Error fetching favorite products: ", error);
   }
 }
+
+export const addToOrder = async (userId, productId, productInfo) => {
+  try {
+    const docId = uuid();
+    const docRef = doc(db, "order", docId);
+
+    await setDoc(docRef, { userId, productId, ...productInfo });
+    console.log("Продукт успешно заказан! Ожидайте звонка.: ", docRef.id);
+  } catch (error) {
+    console.error("Ошибка при заказе продукта! Попробуйте заново.: ", error);
+  }
+};

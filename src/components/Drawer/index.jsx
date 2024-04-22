@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from "react";
-
 import Info from "../Info";
-
 import styles from "./Drawer.module.scss";
-import { getCartProducts } from "../../api/clothes";
+import { addToOrder, getCartProducts, removeFromCart } from "../../api/clothes";
 import { useAuth } from "../../hooks/useAuth";
+import { useCart } from "../../hooks/useCart";
 
 function Drawer({ onClose, opened }) {
   const [items, setItems] = useState([]);
   const [isOrderComplete, setIsOrderComplete] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const user = useAuth();
-
+  const { totalPrice } = useCart();
   useEffect(() => {
+    setIsLoading(true);
     const handleGetCarts = async () => {
       const data = await getCartProducts(user?.uid);
       setItems(data);
+      setIsLoading(false);
     };
 
-     handleGetCarts();
-  }, []);
+    handleGetCarts();
+  }, [opened, user]);
 
-  const onClickOrder = async () => {
-
+  const onClickOrder = async (id, productId, productInfo) => {
+    try {
+      addToOrder(id, productId, productInfo);
+    } catch (error) {}
   };
 
   return (
@@ -38,8 +41,9 @@ function Drawer({ onClose, opened }) {
             alt="Close"
           />
         </h2>
-
-        {items.length > 0 ? (
+        {isLoading ? (
+          <div>Загрузка...</div>
+        ) : items.length > 0 ? (
           <div className="d-flex flex-column flex">
             <div className="items flex">
               {items.map((obj) => (
@@ -56,10 +60,10 @@ function Drawer({ onClose, opened }) {
 
                   <div className="mr-20 flex">
                     <p className="mb-5">{obj.title}</p>
-                    <b>{obj.price} руб.</b>
+                    <b>{obj.price} тг.</b>
                   </div>
                   <img
-                    onClick={() => onRemove(obj.id)}
+                    onClick={() => removeFromCart(user.uid, obj.id)}
                     className="removeBtn"
                     src="img/btn-remove.svg"
                     alt="Remove"
@@ -74,18 +78,17 @@ function Drawer({ onClose, opened }) {
                   <div></div>
                   {/* total */}
 
-                  <b>{0} тг. </b>
-                </li>
-                <li>
-                  <span>Налог 5%:</span>
-                  <div></div>
-                  {/* total */}
-                  <b>{(0 / 100) * 5} тг. </b>
+                  <b>{totalPrice} тг. </b>
                 </li>
               </ul>
               <button
                 disabled={isLoading}
-                onClick={onClickOrder}
+                onClick={() =>
+                  onClickOrder(user.id, obj.id, {
+                    status: "Отправка",
+                    value: 1,
+                  })
+                }
                 className="greenButton"
               >
                 Оформить заказ <img src="img/arrow.svg" alt="Arrow" />

@@ -1,7 +1,15 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { useCart } from "../hooks/useCart";
 
 function Header({ onOpen }) {
+  const user = useAuth();
+
+  const cart = useCart();
+
+  console.log()
+
   return (
     <header className="d-flex justify-between align-center p-40">
       <Link to="/">
@@ -14,9 +22,9 @@ function Header({ onOpen }) {
         </div>
       </Link>
       <ul className="d-flex">
-        <li onClick={() => onOpen(true)} className="mr-30 cu-p d-flex">
+        <li onClick={onOpen} className="mr-30 cu-p d-flex">
           <img width={18} height={18} src="img/cart.svg" alt="Корзина" />
-          <span>{1} тенге.</span>
+          <span>{cart?.totalPrice} тенге.</span>
         </li>
         <li className="mr-20 cu-p">
           <Link to="/favorites">
@@ -24,9 +32,18 @@ function Header({ onOpen }) {
           </Link>
         </li>
         <li>
-          <Link to="/orders">
-            <img width={18} height={18} src="img/user.svg" alt="Пользователь" />
-          </Link>
+          {user ? (
+            <Link to="/profile">
+              <img
+                width={18}
+                height={18}
+                src="img/user.svg"
+                alt="Пользователь"
+              />
+            </Link>
+          ) : (
+            <button>Войти</button>
+          )}
         </li>
       </ul>
     </header>
