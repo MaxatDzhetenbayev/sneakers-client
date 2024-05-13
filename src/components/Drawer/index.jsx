@@ -1,27 +1,29 @@
 import React, { useEffect, useState } from "react";
 import Info from "../Info";
 import styles from "./Drawer.module.scss";
-import { addToOrder, getCartProducts, removeFromCart } from "../../api/clothes";
+import { addToOrder, fetchCartProducts, removeFromCart } from "../../api/clothes";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 
+
 function Drawer({ onClose, opened }) {
-  const [items, setItems] = useState([]);
   const [isOrderComplete, setIsOrderComplete] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  const user = useAuth();
-  const { totalPrice } = useCart();
-  useEffect(() => {
-    setIsLoading(true);
-    const handleGetCarts = async () => {
-      const data = await getCartProducts(user?.uid);
-      setItems(data);
-      setIsLoading(false);
-    };
+  const [carts, setCarts] = useState([]);
 
-    handleGetCarts();
-  }, [opened, user]);
+  const user = useAuth();
+  const userId = user?.uid;
+
+  const { totalPrice } = useCart();
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribe = fetchCartProducts(userId, setCarts, setIsLoading);
+
+    return () => unsubscribe();
+  }, [userId]);
 
   const onClickOrder = async (id, productId, productInfo) => {
     try {
@@ -43,10 +45,10 @@ function Drawer({ onClose, opened }) {
         </h2>
         {isLoading ? (
           <div>Загрузка...</div>
-        ) : items.length > 0 ? (
+        ) : carts.length > 0 ? (
           <div className="d-flex flex-column flex">
             <div className="items flex">
-              {items.map((obj) => (
+              {carts.map((obj) => (
                 <div
                   key={obj.id}
                   className="cartItem d-flex align-center mb-20"

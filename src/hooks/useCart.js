@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "./useAuth";
-import { getCartProducts } from "../api/clothes";
+import { fetchCartProducts } from "../api/clothes";
 export const useCart = () => {
   const user = useAuth();
+  const userId = user?.uid;
 
   const [cartItems, setCartItems] = useState([]);
-  useEffect(() => {
-    const handleGetUserCartItem = async () => {
-      const cartItems = await getCartProducts(user?.uid);
-		console.log(cartItems)
-      setCartItems(cartItems);
-    };
+  const [isLoading, setIsLoading] = useState(true);
 
-    handleGetUserCartItem();
-  }, [user]);
+  useEffect(() => {
+    fetchCartProducts(user?.uid, setCartItems, setIsLoading);
+  }, [userId]);
 
   const totalPrice = cartItems?.reduce((sum, obj) => +obj.price + sum, 0);
 

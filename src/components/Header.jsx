@@ -8,7 +8,7 @@ function Header({ onOpen }) {
 
   const cart = useCart();
 
-  console.log()
+  console.log();
 
   return (
     <header className="d-flex justify-between align-center p-40">

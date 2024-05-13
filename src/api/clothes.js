@@ -13,6 +13,7 @@ import {
   where,
   getDoc,
   deleteDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { v4 as uuid } from "uuid";
@@ -102,8 +103,8 @@ export const addToCart = async (userId, productId) => {
 };
 
 export const removeFromCart = async (userId, productId) => {
-	console.log(userId)
-	console.log(productId)
+  console.log(userId);
+  console.log(productId);
   try {
     const q = query(
       collection(db, "carts"),
@@ -131,34 +132,6 @@ export const getAllCartProducts = async () => {
   return data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
 };
 
-export async function getCartProducts(userId) {
-  const favoritesQuery = query(
-    collection(db, "carts"),
-    where("userId", "==", userId)
-  );
-
-  try {
-    const querySnapshot = await getDocs(favoritesQuery);
-    const favorites = querySnapshot.docs.map((doc) => doc.data().productId);
-
-    const productsDetails = await Promise.all(
-      favorites.map((productId) => {
-        const productRef = doc(db, "clothes", productId);
-        return getDoc(productRef);
-      })
-    );
-
-    const products = productsDetails.map((doc, index) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-
-    return products;
-  } catch (error) {
-    console.error("Error fetching favorite products: ", error);
-  }
-}
-
 export const addToOrder = async (userId, productId, productInfo) => {
   try {
     const docId = uuid();
@@ -169,4 +142,35 @@ export const addToOrder = async (userId, productId, productInfo) => {
   } catch (error) {
     console.error("Ошибка при заказе продукта! Попробуйте заново.: ", error);
   }
+};
+
+export const fetchCartProducts = (userId, setCarts, setIsLoading) => {
+  const cartCollection = collection(db, "carts");
+  const cartQuery = query(cartCollection, where("userId", "==", userId));
+
+  const unsubscribe = onSnapshot(cartQuery, async (querySnapshot) => {
+    const cartList = querySnapshot.docs.map((doc) => doc.data().productId);
+
+    if (cartList.length === 0) {
+      setCarts([]);
+      setIsLoading(false);
+      return;
+    }
+
+    const clothesQuery = query(
+      collection(db, "clothes"),
+      where("__name__", "in", cartList)
+    );
+
+    const clothesSnapshot = await getDocs(clothesQuery);
+    const clothesItems = clothesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    setCarts(clothesItems);
+    setIsLoading(false);
+  });
+
+  return unsubscribe;
 };

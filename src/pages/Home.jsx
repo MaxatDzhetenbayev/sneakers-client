@@ -23,6 +23,8 @@ function Home() {
       return item.title.toLowerCase().includes(searchValue.toLocaleLowerCase());
     });
 
+    console.log(filtredItems);
+
     return (
       <>
         {(isLoading ? [...Array(8)] : filtredItems).map((item, index) => (

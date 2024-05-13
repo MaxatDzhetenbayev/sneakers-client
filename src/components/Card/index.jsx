@@ -15,14 +15,7 @@ function Card({
   onPlus,
   loading = false,
 }) {
-  const { addItemToCart } = React.useContext(CartContext);
-  const obj = {
-    id,
-    title,
-    imageurl,
-    price,
-  };
-
+	console.log(price)
   const user = useAuth();
 
   return (
