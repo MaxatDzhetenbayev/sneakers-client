@@ -48,7 +48,20 @@ function Drawer({ onClose, opened }) {
             alt="Close"
           />
         </h2>
-        {isLoading ? (
+        {!user ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <h3 style={{ textAlign: "center" }}>
+              Авторизуйтесь, чтобы добавить товар в корзину
+            </h3>
+          </div>
+        ) : isLoading ? (
           <div>Загрузка...</div>
         ) : carts.length > 0 ? (
           <div className="d-flex flex-column flex">

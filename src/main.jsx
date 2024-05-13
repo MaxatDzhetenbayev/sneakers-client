@@ -8,7 +8,6 @@ import Home from "./pages/Home";
 import { CartProvider } from "./contexts/cartContext";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
-import { AuthCheck } from "./components/AuthCheck";
 import { Profile } from "./pages/Profile";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

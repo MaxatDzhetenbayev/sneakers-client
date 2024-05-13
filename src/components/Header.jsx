@@ -19,7 +19,7 @@ function Header({ onOpen }) {
           </div>
         </div>
       </Link>
-      <ul className="d-flex">
+      <ul className="d-flex align-center">
         <li onClick={onOpen} className="mr-30 cu-p d-flex">
           <img width={18} height={18} src="img/cart.svg" alt="Корзина" />
           <span>{cart?.totalPrice} тенге.</span>
@@ -35,7 +35,7 @@ function Header({ onOpen }) {
               />
             </Link>
           ) : (
-            <button onClick={() => navigate("login")}>Войти</button>
+            <button className="button button__green"  onClick={() => navigate("login")}>Войти</button>
           )}
         </li>
       </ul>

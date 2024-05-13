@@ -13,7 +13,6 @@ export const useCart = () => {
 
     fetchCartProducts(userId, setCartItems, setIsLoading);
   }, [userId]);
-//   console.log(cartItems)
   const totalPrice = cartItems?.reduce((sum, obj) => (+obj.price + sum) * +obj.count, 0);
 
   return { totalPrice };
