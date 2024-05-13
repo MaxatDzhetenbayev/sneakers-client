@@ -69,7 +69,7 @@ function Drawer({ onClose, opened }) {
                     <p className="mb-5">{obj.title}</p>
                     <b>{obj.price} тг.</b>
                     <Counter
-                      onRemove={() => removeFromCart(user.uid, obj.id)}
+                      onRemove={() => removeFromCart(user.uid, obj.id, false)}
                       onAdd={() => addToCart(user.uid, obj.id)}
                       count={obj.count}
                     />

@@ -72,9 +72,7 @@ export const addToCart = async (userId, productId) => {
   }
 };
 
-export const removeFromCart = async (userId, productId) => {
-  console.log(userId);
-  console.log(productId);
+export const removeFromCart = async (userId, productId, isDelete = true) => {
   try {
     const q = query(
       collection(db, "carts"),
@@ -93,23 +91,17 @@ export const removeFromCart = async (userId, productId) => {
     const docRef = doc(db, "carts", docId);
     const cartData = cartSnapshot.docs[0].data();
 
-    if (cartData.count > 1) {
-      await setDoc(docRef, { ...cartData, count: cartData.count - 1 });
+    if (isDelete) {
+      const document = cartSnapshot.docs[0];
+      await deleteDoc(doc(db, "carts", document.id));
+      console.log("Удален продукт из корзины с ID: ", document.id);
       return;
     }
 
-    const document = cartSnapshot.docs[0];
-    await deleteDoc(doc(db, "carts", document.id));
-    console.log("Удален продукт из корзины с ID: ", document.id);
+    await setDoc(docRef, { ...cartData, count: cartData.count - 1 });
   } catch (error) {
     console.error("Ошибка при удалении продукта из корзины: ", error);
   }
-};
-
-export const getAllCartProducts = async () => {
-  const clothesCollectionRef = collection(db, "clothes");
-  const data = await getDocs(clothesCollectionRef);
-  return data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
 };
 
 export const addToOrder = async (userId, productId, productInfo) => {
@@ -156,26 +148,3 @@ export const fetchCartProducts = (userId, setCarts, setIsLoading) => {
   });
   return unsubscribe;
 };
-
-// export const fetchIncrementCartProduct = async (userId, productId) => {
-//   const cartRef = collection(db, "carts");
-//   const cartQuery = query(
-//     cartRef,
-//     where("userId", "==", userId),
-//     where("productId", "==", productId)
-//   );
-
-//   try {
-//     const cartSnapshot = await getDocs(cartQuery);
-
-//     if (!cartSnapshot.empty) {
-//       const docId = cartSnapshot.docs[0].id;
-//       const docRef = doc(db, "carts", docId);
-//       const cartData = cartSnapshot.docs[0].data();
-//       await setDoc(docRef, { ...cartData, count: cartData.count + 1 });
-//       return;
-//     }
-//   } catch (error) {
-//     console.error("Ошибка при добавлении продукта в корзину: ", error);
-//   }
-// };
