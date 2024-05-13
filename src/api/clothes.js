@@ -13,9 +13,11 @@ import {
   where,
   deleteDoc,
   onSnapshot,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { v4 as uuid } from "uuid";
+import { toast } from "react-toastify";
 
 export const addClothes = async (file, payload) => {
   try {
@@ -104,18 +106,6 @@ export const removeFromCart = async (userId, productId, isDelete = true) => {
   }
 };
 
-export const addToOrder = async (userId, productId, productInfo) => {
-  try {
-    const docId = uuid();
-    const docRef = doc(db, "order", docId);
-
-    await setDoc(docRef, { userId, productId, ...productInfo });
-    console.log("Продукт успешно заказан! Ожидайте звонка.: ", docRef.id);
-  } catch (error) {
-    console.error("Ошибка при заказе продукта! Попробуйте заново.: ", error);
-  }
-};
-
 export const fetchCartProducts = (userId, setCarts, setIsLoading) => {
   const cartCollection = collection(db, "carts");
   const cartQuery = query(cartCollection, where("userId", "==", userId));
@@ -147,4 +137,74 @@ export const fetchCartProducts = (userId, setCarts, setIsLoading) => {
     setIsLoading(false);
   });
   return unsubscribe;
+};
+
+export const addToOrder = async (user) => {
+  const { uid: userId, email } = user;
+
+  try {
+    const cartRef = collection(db, "carts");
+    const cartQuery = query(cartRef, where("userId", "==", userId));
+
+    const cartSnapshot = await getDocs(cartQuery);
+
+    if (cartSnapshot.empty) {
+      console.log("Корзина пуста! Добавьте товары в корзину.");
+      return;
+    }
+
+    const cartListIds = cartSnapshot.docs.map((doc) => doc.data().productId);
+    const cartListData = cartSnapshot.docs.map((doc) => doc.data());
+    if (cartListIds.length === 0) {
+      return;
+    }
+
+    const clothesQuery = query(
+      collection(db, "clothes"),
+      where("__name__", "in", cartListIds)
+    );
+
+    const clothesSnapshot = await getDocs(clothesQuery);
+    const clothesItems = clothesSnapshot.docs.map((doc) => {
+      return {
+        id: doc.id,
+        ...doc.data(),
+        count: cartListData.find((item) => item.productId === doc.id).count,
+      };
+    });
+
+    const orderId = uuid();
+    const orderRef = collection(db, "orders");
+    const orderDocRef = doc(orderRef, orderId);
+    await setDoc(orderDocRef, {
+      userId,
+      email,
+      products: clothesItems,
+      status: "processing",
+      date: new Date().toLocaleString(),
+    });
+
+    toast.success("Заказ успешно оформлен! ID заказа: " + orderId);
+
+    const batch = writeBatch(db);
+    cartSnapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    await batch.commit();
+  } catch (error) {
+    console.error("Ошибка при заказе продукта! Попробуйте заново.: ", error);
+  }
+};
+
+export const getUserOrders = async (userId) => {
+  if (!userId) return;
+  const ordersRef = collection(db, "orders");
+  const ordersQuery = query(ordersRef, where("userId", "==", userId));
+
+  const ordersSnapshot = await getDocs(ordersQuery);
+  const ordersList = ordersSnapshot.docs.map((doc) => ({
+    ...doc.data(),
+    id: doc.id,
+  }));
+  return ordersList;
 };

@@ -30,9 +30,9 @@ function Drawer({ onClose, opened }) {
     return () => unsubscribe();
   }, [userId]);
 
-  const onClickOrder = async (id, productId, productInfo) => {
+  const onClickOrder = async (user) => {
     try {
-      addToOrder(id, productId, productInfo);
+      addToOrder(user);
     } catch (error) {}
   };
 
@@ -108,12 +108,7 @@ function Drawer({ onClose, opened }) {
               </ul>
               <button
                 disabled={isLoading}
-                onClick={() =>
-                  onClickOrder(user.id, obj.id, {
-                    status: "Отправка",
-                    value: 1,
-                  })
-                }
+                onClick={() => onClickOrder(user)}
                 className="greenButton"
               >
                 Оформить заказ <img src="img/arrow.svg" alt="Arrow" />
