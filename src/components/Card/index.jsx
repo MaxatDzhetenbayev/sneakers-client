@@ -1,21 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ContentLoader from "react-content-loader";
 
 import styles from "./Card.module.scss";
-import { CartContext } from "../../contexts/cartContext";
-import { addFavorits, addToCart } from "../../api/clothes";
+import { addToCart } from "../../api/clothes";
 import { useAuth } from "../../hooks/useAuth";
 
-function Card({
-  id,
-  title,
-  imageurl,
-  price,
-  onFavorite,
-  onPlus,
-  loading = false,
-}) {
-	console.log(price)
+function Card({ id, title, imageurl, price, onPlus, loading = false }) {
   const user = useAuth();
 
   return (
@@ -37,17 +27,6 @@ function Card({
         </ContentLoader>
       ) : (
         <>
-          {onFavorite && (
-            <div
-              className={styles.favorite}
-              onClick={() => addFavorits(user?.uid, id)}
-            >
-              <img
-                src={false ? "img/liked.svg" : "img/unliked.svg"}
-                alt="Unliked"
-              />
-            </div>
-          )}
           <img width="100%" height={135} src={imageurl} alt="Sneakers" />
           <h5>{title}</h5>
           <div className="d-flex justify-between align-center">

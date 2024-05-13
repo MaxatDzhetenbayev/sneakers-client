@@ -5,7 +5,6 @@ import "./index.scss";
 import "macro-css";
 import App from "./App";
 import Home from "./pages/Home";
-import Favorites from "./pages/Favorites";
 import { CartProvider } from "./contexts/cartContext";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
@@ -20,19 +19,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: (
-          <AuthCheck>
-            <Home />
-          </AuthCheck>
-        ),
-      },
-      {
-        path: "favorites",
-        element: (
-          <AuthCheck>
-            <Favorites />
-          </AuthCheck>
-        ),
+        element: <Home />,
       },
       { path: "profile", element: <Profile /> },
       { path: "login", element: <Login /> },

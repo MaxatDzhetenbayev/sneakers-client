@@ -9,10 +9,12 @@ export const useCart = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchCartProducts(user?.uid, setCartItems, setIsLoading);
-  }, [userId]);
+	if(!userId) return
 
-  const totalPrice = cartItems?.reduce((sum, obj) => +obj.price + sum, 0);
+    fetchCartProducts(userId, setCartItems, setIsLoading);
+  }, [userId]);
+//   console.log(cartItems)
+  const totalPrice = cartItems?.reduce((sum, obj) => (+obj.price + sum) * +obj.count, 0);
 
   return { totalPrice };
 };

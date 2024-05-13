@@ -1,7 +1,7 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../firebaseConfig";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export const Register = () => {
@@ -42,6 +42,7 @@ export const Register = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+      <Link to="/login">Авторизоваться</Link>
       <button className="button button__green" onClick={handleSignIn}>
         Зарегестрироваться
       </button>

@@ -1,14 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../hooks/useCart";
 
 function Header({ onOpen }) {
   const user = useAuth();
-
   const cart = useCart();
-
-  console.log();
+  const navigate = useNavigate();
 
   return (
     <header className="d-flex justify-between align-center p-40">
@@ -26,11 +24,6 @@ function Header({ onOpen }) {
           <img width={18} height={18} src="img/cart.svg" alt="Корзина" />
           <span>{cart?.totalPrice} тенге.</span>
         </li>
-        <li className="mr-20 cu-p">
-          <Link to="/favorites">
-            <img width={18} height={18} src="img/heart.svg" alt="Закладки" />
-          </Link>
-        </li>
         <li>
           {user ? (
             <Link to="/profile">
@@ -42,7 +35,7 @@ function Header({ onOpen }) {
               />
             </Link>
           ) : (
-            <button>Войти</button>
+            <button onClick={() => navigate("login")}>Войти</button>
           )}
         </li>
       </ul>

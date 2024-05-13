@@ -11,7 +11,6 @@ import {
   query,
   setDoc,
   where,
-  getDoc,
   deleteDoc,
   onSnapshot,
 } from "firebase/firestore";
@@ -44,58 +43,29 @@ export const getAllClothes = async () => {
   return data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
 };
 
-export const addFavorits = async (userId, productId) => {
-  try {
-    const docId = uuid();
-    const docRef = doc(db, "favorites", docId);
-
-    await setDoc(docRef, { userId, productId });
-    console.log("Продукт успешно добавлен в избранные ID: ", docRef.id);
-  } catch (error) {
-    console.error("Ошибка при добавлении продукта в избранные: ", error);
-  }
-};
-
-export const getAllFavorits = async () => {
-  const clothesCollectionRef = collection(db, "clothes");
-  const data = await getDocs(clothesCollectionRef);
-  return data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-};
-
-export async function getFavoriteProducts(userId) {
-  const favoritesQuery = query(
-    collection(db, "favorites"),
-    where("userId", "==", userId)
+export const addToCart = async (userId, productId) => {
+  const cartRef = collection(db, "carts");
+  const cartQuery = query(
+    cartRef,
+    where("userId", "==", userId),
+    where("productId", "==", productId)
   );
 
   try {
-    const querySnapshot = await getDocs(favoritesQuery);
-    const favorites = querySnapshot.docs.map((doc) => doc.data().productId);
+    const cartSnapshot = await getDocs(cartQuery);
 
-    const productsDetails = await Promise.all(
-      favorites.map((productId) => {
-        const productRef = doc(db, "clothes", productId);
-        return getDoc(productRef);
-      })
-    );
+    if (!cartSnapshot.empty) {
+      const docId = cartSnapshot.docs[0].id;
+      const docRef = doc(db, "carts", docId);
+      const cartData = cartSnapshot.docs[0].data();
+      await setDoc(docRef, { ...cartData, count: cartData.count + 1 });
+      return;
+    }
 
-    const products = productsDetails.map((doc, index) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-
-    return products;
-  } catch (error) {
-    console.error("Error fetching favorite products: ", error);
-  }
-}
-
-export const addToCart = async (userId, productId) => {
-  try {
     const docId = uuid();
     const docRef = doc(db, "carts", docId);
 
-    await setDoc(docRef, { userId, productId });
+    await setDoc(docRef, { userId, productId, count: 1 });
     console.log("Продукт успешно добавлен в корзину ID: ", docRef.id);
   } catch (error) {
     console.error("Ошибка при добавлении продукта в корзину: ", error);
@@ -112,15 +82,25 @@ export const removeFromCart = async (userId, productId) => {
       where("productId", "==", productId)
     );
 
-    const querySnapshot = await getDocs(q);
+    const cartSnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-      const document = querySnapshot.docs[0];
-      await deleteDoc(doc(db, "carts", document.id));
-      console.log("Удален продукт из корзины с ID: ", document.id);
-    } else {
+    if (cartSnapshot.empty) {
       console.log("Не найдено продуктов в корзине для удаления.");
+      return;
     }
+
+    const docId = cartSnapshot.docs[0].id;
+    const docRef = doc(db, "carts", docId);
+    const cartData = cartSnapshot.docs[0].data();
+
+    if (cartData.count > 1) {
+      await setDoc(docRef, { ...cartData, count: cartData.count - 1 });
+      return;
+    }
+
+    const document = cartSnapshot.docs[0];
+    await deleteDoc(doc(db, "carts", document.id));
+    console.log("Удален продукт из корзины с ID: ", document.id);
   } catch (error) {
     console.error("Ошибка при удалении продукта из корзины: ", error);
   }
@@ -149,9 +129,9 @@ export const fetchCartProducts = (userId, setCarts, setIsLoading) => {
   const cartQuery = query(cartCollection, where("userId", "==", userId));
 
   const unsubscribe = onSnapshot(cartQuery, async (querySnapshot) => {
-    const cartList = querySnapshot.docs.map((doc) => doc.data().productId);
-
-    if (cartList.length === 0) {
+    const cartListData = querySnapshot.docs.map((doc) => doc.data());
+    const cartListIds = querySnapshot.docs.map((doc) => doc.data().productId);
+    if (cartListIds.length === 0) {
       setCarts([]);
       setIsLoading(false);
       return;
@@ -159,18 +139,43 @@ export const fetchCartProducts = (userId, setCarts, setIsLoading) => {
 
     const clothesQuery = query(
       collection(db, "clothes"),
-      where("__name__", "in", cartList)
+      where("__name__", "in", cartListIds)
     );
 
     const clothesSnapshot = await getDocs(clothesQuery);
-    const clothesItems = clothesSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const clothesItems = clothesSnapshot.docs.map((doc) => {
+      return {
+        id: doc.id,
+        ...doc.data(),
+        count: cartListData.find((item) => item.productId === doc.id).count,
+      };
+    });
 
     setCarts(clothesItems);
     setIsLoading(false);
   });
-
   return unsubscribe;
 };
+
+// export const fetchIncrementCartProduct = async (userId, productId) => {
+//   const cartRef = collection(db, "carts");
+//   const cartQuery = query(
+//     cartRef,
+//     where("userId", "==", userId),
+//     where("productId", "==", productId)
+//   );
+
+//   try {
+//     const cartSnapshot = await getDocs(cartQuery);
+
+//     if (!cartSnapshot.empty) {
+//       const docId = cartSnapshot.docs[0].id;
+//       const docRef = doc(db, "carts", docId);
+//       const cartData = cartSnapshot.docs[0].data();
+//       await setDoc(docRef, { ...cartData, count: cartData.count + 1 });
+//       return;
+//     }
+//   } catch (error) {
+//     console.error("Ошибка при добавлении продукта в корзину: ", error);
+//   }
+// };

@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Info from "../Info";
 import styles from "./Drawer.module.scss";
-import { addToOrder, fetchCartProducts, removeFromCart } from "../../api/clothes";
+import {
+  addToOrder,
+  fetchCartProducts,
+  removeFromCart,
+  addToCart,
+} from "../../api/clothes";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
-
+import { Counter } from "../Card/Counter/Counter";
 
 function Drawer({ onClose, opened }) {
   const [isOrderComplete, setIsOrderComplete] = React.useState(false);
@@ -63,6 +68,11 @@ function Drawer({ onClose, opened }) {
                   <div className="mr-20 flex">
                     <p className="mb-5">{obj.title}</p>
                     <b>{obj.price} тг.</b>
+                    <Counter
+                      onRemove={() => removeFromCart(user.uid, obj.id)}
+                      onAdd={() => addToCart(user.uid, obj.id)}
+                      count={obj.count}
+                    />
                   </div>
                   <img
                     onClick={() => removeFromCart(user.uid, obj.id)}
@@ -100,6 +110,7 @@ function Drawer({ onClose, opened }) {
         ) : (
           <Info
             title={isOrderComplete ? "Заказ оформлен!" : "Корзина пустая"}
+            onClose={onClose}
             description={
               isOrderComplete
                 ? `Ваш заказ #${orderId} скоро будет передан курьерской доставке`
