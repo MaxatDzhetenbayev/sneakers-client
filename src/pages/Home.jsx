@@ -10,13 +10,10 @@ function Home() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-      const handleGetAllClothes = async () => {
         setIsLoading(true);
-        const data = await getAllClothes();
+        const unsubscribe = getAllClothes(setClothes);
         setIsLoading(false);
-        setClothes(data);
-      };
-      handleGetAllClothes();
+        return () => unsubscribe();
     }, []);
 
     const filtredItems = clothes?.filter((item) => {
@@ -25,7 +22,7 @@ function Home() {
 
     return (
       <>
-        {(isLoading ? [...Array(8)] : filtredItems).map((item, index) => (
+        {(isLoading ? [...Array(8)] : filtredItems)?.map((item, index) => (
           <Card
             key={index}
             onFavorite={(obj) => onAddToFavorite(obj)}

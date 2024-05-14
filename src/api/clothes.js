@@ -18,6 +18,18 @@ import {
 import { db } from "../firebaseConfig";
 import { v4 as uuid } from "uuid";
 import { toast } from "react-toastify";
+import emailjs from "@emailjs/browser";
+
+export const getAllClothes = (callback) => {
+  const clothesCollectionRef = collection(db, "clothes");
+
+  const unsubscribe = onSnapshot(clothesCollectionRef, (snapshot) => {
+    const clothesData = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+    callback(clothesData); // Возвращаем данные через callback
+  });
+
+  return unsubscribe;
+};
 
 export const addClothes = async (file, payload) => {
   try {
@@ -39,11 +51,15 @@ export const addClothes = async (file, payload) => {
   }
 };
 
-export const getAllClothes = async () => {
-  const clothesCollectionRef = collection(db, "clothes");
-  const data = await getDocs(clothesCollectionRef);
-  return data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-};
+export const deleteClothes = async (id) => {
+  try {
+    await deleteDoc(doc(db, "clothes", id));
+    console.log("Документ успешно удален с ID: ", id);
+  } catch (e) {
+    console.error("Ошибка при удалении документа: ", e);
+  }
+}
+
 
 export const addToCart = async (userId, productId) => {
   const cartRef = collection(db, "carts");
@@ -142,6 +158,10 @@ export const fetchCartProducts = (userId, setCarts, setIsLoading) => {
 export const addToOrder = async (user) => {
   const { uid: userId, email } = user;
 
+
+
+
+
   try {
     const cartRef = collection(db, "carts");
     const cartQuery = query(cartRef, where("userId", "==", userId));
@@ -183,6 +203,23 @@ export const addToOrder = async (user) => {
       status: "processing",
       date: new Date().toLocaleString(),
     });
+
+
+
+    emailjs
+      .sendForm('service_j3kkoql', 'template_d6iil4i', {email, products: clothesItems, orderId}, {
+        publicKey: 'myx63XfRfUvzWa19x',
+      })
+      .then(
+        () => {
+          console.log('SUCCESS!');
+        },
+        (error) => {
+          console.log('FAILED...', error.text);
+        },
+      );
+
+
 
     toast.success("Заказ успешно оформлен! ID заказа: " + orderId);
 

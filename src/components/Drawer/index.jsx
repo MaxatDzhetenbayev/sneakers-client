@@ -20,6 +20,8 @@ function Drawer({ onClose, opened }) {
   const user = useAuth();
   const userId = user?.uid;
 
+  console.log(user.email)
+
   const { totalPrice } = useCart();
 
   useEffect(() => {

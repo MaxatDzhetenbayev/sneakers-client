@@ -40,7 +40,6 @@ export const Profile = () => {
     fetchOrders();
   }, [userId]);
 
-  console.log(orders);
   return (
     <div className="profile">
       <button

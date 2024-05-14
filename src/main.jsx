@@ -11,6 +11,9 @@ import { Register } from "./pages/Register";
 import { Profile } from "./pages/Profile";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Panel } from "./pages/Panel";
+import { CreateProduct } from "./pages/CreateProduct";
+import { ProductList } from "./pages/ProductList";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +28,21 @@ const router = createBrowserRouter([
       { path: "register", element: <Register /> },
     ],
   },
+  {
+    element: <Panel/>,
+    path: "admin",
+    children: [
+      {
+        path: "create",
+        element: <CreateProduct/>,
+      },
+      {
+        path: "products",
+        element: <ProductList/>,
+      }
+
+    ]
+  }
 ]);
 
 const container = document.getElementById("root");
