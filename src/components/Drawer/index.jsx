@@ -11,6 +11,30 @@ import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import { Counter } from "../Card/Counter/Counter";
 
+
+const CartItemOptionsView = ({ obj, userId, onRemove, onAdd }) => {
+  console.log(obj.id)
+  return (
+    <>
+      <ul style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {Object.keys(obj.options).map((key) => {
+          return (
+            <li style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "5px" }} key={key}>
+              <span>Размер {key}</span>
+              <Counter
+                count={obj.options[key]?.count}
+                onRemove={() => onRemove(userId, obj.id, key, false)}
+                onAdd={() => onAdd(obj, userId, key)}
+              />
+            </li>
+          )
+        })}
+      </ul>
+    </>
+  )
+}
+
+
 function Drawer({ onClose, opened }) {
   const [isOrderComplete, setIsOrderComplete] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -19,8 +43,6 @@ function Drawer({ onClose, opened }) {
 
   const user = useAuth();
   const userId = user?.uid;
-
-  console.log(user.email)
 
   const { totalPrice } = useCart();
 
@@ -35,9 +57,8 @@ function Drawer({ onClose, opened }) {
   const onClickOrder = async (user) => {
     try {
       addToOrder(user);
-    } catch (error) {}
+    } catch (error) { }
   };
-
   return (
     <div className={`${styles.overlay} ${opened ? styles.overlayVisible : ""}`}>
       <div className={styles.drawer}>
@@ -83,10 +104,12 @@ function Drawer({ onClose, opened }) {
                   <div className="mr-20 flex">
                     <p className="mb-5">{obj.title}</p>
                     <b>{obj.price} тг.</b>
-                    <Counter
-                      onRemove={() => removeFromCart(user.uid, obj.id, false)}
-                      onAdd={() => addToCart(user.uid, obj.id)}
-                      count={obj.count}
+                    <CartItemOptionsView
+                      obj={obj}
+                      userId={userId}
+                      onAdd={addToCart}
+                      onRemove={removeFromCart}
+                      // onRemove={() => removeFromCart(user.uid, obj.id, false)}
                     />
                   </div>
                   <img

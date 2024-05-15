@@ -11,11 +11,9 @@ function Home() {
 
     useEffect(() => {
         setIsLoading(true);
-        const unsubscribe = getAllClothes(setClothes);
-        setIsLoading(false);
+        const unsubscribe = getAllClothes(setClothes, setIsLoading);
         return () => unsubscribe();
     }, []);
-
     const filtredItems = clothes?.filter((item) => {
       return item.title.toLowerCase().includes(searchValue.toLocaleLowerCase());
     });

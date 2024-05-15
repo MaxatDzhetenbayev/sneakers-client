@@ -14,7 +14,6 @@ export const Counter = ({ count, onAdd, onRemove }) => {
       style={{
         display: "flex",
         gap: "10px",
-        marginTop: "10px",
         alignItems: "center",
       }}
     >

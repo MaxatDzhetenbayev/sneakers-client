@@ -6,8 +6,8 @@ export const Footer = () => {
             <div style={{ padding: "10px 20px"}}>
                 <h4>Контакты:</h4>
                 <ul>
-                    <li><span>Место:</span> г.Семей, ул.Кордай 78а</li>
-                    <li><span>Телефон:</span> <a href="tel:+77087777777"> 8(708) 777 77 77</a></li>
+                    <li><span>Место:</span> г.Семей, ул.Засядко 54</li>
+                    <li><span>Телефон:</span> <a href="tel:+77719872005"> 8(771) 987-20-05</a></li>
                 </ul>
                 <div></div>
             </div>

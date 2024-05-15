@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { deleteClothes, getAllClothes } from '../api/clothes'
 import { toast } from 'react-toastify'
+import emailjs from "@emailjs/browser";
 
 export const ProductList = () => {
 
@@ -20,8 +21,30 @@ export const ProductList = () => {
         }
     }
 
+
+    const handleSendEmail = () => {
+
+        const option = {
+            email: "delta.education.imas@gmail.com",
+            products: [{ title: 'Шуба', count: 1 }],
+            orderId: '123123125124',
+        }
+
+        emailjs
+            .send('service_j3kkoql', 'template_d6iil4i', option, 'myx63XfRfUvzWa19x',)
+            .then(
+                () => {
+                    console.log('SUCCESS!');
+                },
+                (error) => {
+                    console.log('FAILED...', error);
+                },
+            );
+    }
+
     return (
         <div>
+            <button onClick={handleSendEmail}>Отправить письмо</button>
             <h2 style={{ textAlign: "center", marginTop: "20px" }}>Список продуктов</h2>
 
             <ul style={{

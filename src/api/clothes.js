@@ -20,12 +20,13 @@ import { v4 as uuid } from "uuid";
 import { toast } from "react-toastify";
 import emailjs from "@emailjs/browser";
 
-export const getAllClothes = (callback) => {
+export const getAllClothes = (callback, setIsLoading) => {
   const clothesCollectionRef = collection(db, "clothes");
 
   const unsubscribe = onSnapshot(clothesCollectionRef, (snapshot) => {
     const clothesData = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     callback(clothesData); // Возвращаем данные через callback
+    setIsLoading(false);
   });
 
   return unsubscribe;
@@ -61,36 +62,49 @@ export const deleteClothes = async (id) => {
 }
 
 
-export const addToCart = async (userId, productId) => {
+export const addToCart = async (item, userId, size) => {
   const cartRef = collection(db, "carts");
   const cartQuery = query(
     cartRef,
     where("userId", "==", userId),
-    where("productId", "==", productId)
+    where("productId", "==", item.id)
   );
+
 
   try {
     const cartSnapshot = await getDocs(cartQuery);
+    // console.log(cartSnapshot.docs.filter(doc => doc.data().productId === productId))
 
-    if (!cartSnapshot.empty) {
-      const docId = cartSnapshot.docs[0].id;
+    if (cartSnapshot.empty) {
+      const docId = uuid();
       const docRef = doc(db, "carts", docId);
-      const cartData = cartSnapshot.docs[0].data();
-      await setDoc(docRef, { ...cartData, count: cartData.count + 1 });
+      await setDoc(docRef, { userId, productId: item.id, options: { [size]: { count: 1, title: size } } });
+      console.log("Продукт успешно добавлен в корзину ID: ", docRef.id);
       return;
     }
 
-    const docId = uuid();
-    const docRef = doc(db, "carts", docId);
 
-    await setDoc(docRef, { userId, productId, count: 1 });
-    console.log("Продукт успешно добавлен в корзину ID: ", docRef.id);
+    const existingProduct = cartSnapshot.docs.find(doc => doc.data().productId === item.id && doc.data().options[size]);
+    if (existingProduct) {
+      const docId = existingProduct.id;
+      const docRef = doc(db, "carts", docId);
+      const cartData = existingProduct.data();
+      await setDoc(docRef, { ...cartData, options: { ...cartData.options, [size]: { count: cartData.options[size].count + 1 } } });
+      console.log("Количество продукта увеличено ID: ", docRef.id);
+      return;
+    } else {
+      const docId = cartSnapshot.docs[0].id;
+      const docRef = doc(db, "carts", docId);
+      const cartData = cartSnapshot.docs[0].data();
+      await setDoc(docRef, { ...cartData, options: { ...cartData.options, [size]: { count: 1, title: size } } });
+      console.log("Продукт с другим размером добавлен в корзину ID: ", docRef.id);
+    }
   } catch (error) {
     console.error("Ошибка при добавлении продукта в корзину: ", error);
   }
 };
 
-export const removeFromCart = async (userId, productId, isDelete = true) => {
+export const removeFromCart = async (userId, productId, size, isDelete = true) => {
   try {
     const q = query(
       collection(db, "carts"),
@@ -115,8 +129,12 @@ export const removeFromCart = async (userId, productId, isDelete = true) => {
       console.log("Удален продукт из корзины с ID: ", document.id);
       return;
     }
+    // if (cartData.count === 0) {
+    //   await deleteDoc(doc(db, "carts", document.id));
+    //   return
+    // }
 
-    await setDoc(docRef, { ...cartData, count: cartData.count - 1 });
+    await setDoc(docRef, { ...cartData, options: { ...cartData.options, [size]: { count: cartData.options[size].count - 1 } } });
   } catch (error) {
     console.error("Ошибка при удалении продукта из корзины: ", error);
   }
@@ -145,7 +163,7 @@ export const fetchCartProducts = (userId, setCarts, setIsLoading) => {
       return {
         id: doc.id,
         ...doc.data(),
-        count: cartListData.find((item) => item.productId === doc.id).count,
+        options: cartListData.find((item) => item.productId === doc.id).options,
       };
     });
 
@@ -157,9 +175,6 @@ export const fetchCartProducts = (userId, setCarts, setIsLoading) => {
 
 export const addToOrder = async (user) => {
   const { uid: userId, email } = user;
-
-
-
 
 
   try {
@@ -189,7 +204,7 @@ export const addToOrder = async (user) => {
       return {
         id: doc.id,
         ...doc.data(),
-        count: cartListData.find((item) => item.productId === doc.id).count,
+        options: cartListData.find((item) => item.productId === doc.id).options,
       };
     });
 
@@ -205,17 +220,16 @@ export const addToOrder = async (user) => {
     });
 
 
+    console.log(clothesItems)
 
     emailjs
-      .sendForm('service_j3kkoql', 'template_d6iil4i', {email, products: clothesItems, orderId}, {
-        publicKey: 'myx63XfRfUvzWa19x',
-      })
+      .send('service_j3kkoql', 'template_d6iil4i', { orderId, email, products: clothesItems }, 'myx63XfRfUvzWa19x',)
       .then(
         () => {
           console.log('SUCCESS!');
         },
         (error) => {
-          console.log('FAILED...', error.text);
+          console.log('FAILED...', error);
         },
       );
 

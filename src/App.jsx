@@ -9,10 +9,10 @@ function App() {
 
   return (
     <div className="wrapper clear" style={{overflow: "hidden"}}>
-      <Drawer opened={cartOpen} onClose={() => setCartOpen(false)} />
       <Header onOpen={() => setCartOpen(true)} />
       <Outlet />
       <Footer/>
+      <Drawer opened={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );
 }

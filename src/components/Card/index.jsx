@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import ContentLoader from "react-content-loader";
 
 import styles from "./Card.module.scss";
 import { addToCart } from "../../api/clothes";
 import { useAuth } from "../../hooks/useAuth";
 
-function Card({ id, title, imageurl, price, onPlus, loading = false }) {
+function Card({ id, title, imageurl, price, options, onPlus, loading = false }) {
   const user = useAuth();
 
+  const [clotheActiveOptions, setClotheActiveOptions] = useState({ size: null })
   return (
     <div className={styles.card}>
       {loading ? (
@@ -29,6 +30,30 @@ function Card({ id, title, imageurl, price, onPlus, loading = false }) {
         <>
           <img width="100%" height={135} src={imageurl} alt="Sneakers" />
           <h5>{title}</h5>
+          <div>
+            <span>Размеры:</span>
+            <ul className={styles.colors} style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+              {options.map(({ size, count }, index) => (
+                <li
+                  key={index}
+                >
+                  <button
+                    disabled={count === 0}
+                    onClick={() => setClotheActiveOptions({ ...clotheActiveOptions, size })}
+                    style={{
+                      padding: "5px 10px",
+                      borderRadius: 8,
+                      border: "none",
+                      backgroundColor: clotheActiveOptions.size === size ? "#9dd558" : "",
+                      color: clotheActiveOptions.size === size ? "white" : ""
+                    }}
+                  >
+                    {size}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
           <div className="d-flex justify-between align-center">
             <div className="d-flex flex-column">
               <span>Цена:</span>
@@ -37,7 +62,7 @@ function Card({ id, title, imageurl, price, onPlus, loading = false }) {
             {onPlus && (
               <img
                 className={styles.plus}
-                onClick={() => addToCart(user?.uid, id)}
+                onClick={() => addToCart({id, options}, user?.uid, clotheActiveOptions.size  )}
                 src={false ? "img/btn-checked.svg" : "img/btn-plus.svg"}
                 alt="Plus"
               />
