@@ -40,7 +40,7 @@ function Card({ id, title, imageurl, price, options, onPlus, loading = false }) 
           <div>
             <span>Размеры:</span>
             <ul className={styles.colors} style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-              {options.sort((a, b) => a.size - b.size).map(({ size, count }) => (
+              {options.map(({ size, count }) => (
                 <li
                   key={size}
                 >

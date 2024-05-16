@@ -1,17 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useLayoutEffect } from "react";
 import { auth } from "../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 
-export const AuthCheck = ({ children }) => {
+export const AdminAuthCheck = ({ children }) => {
   const navigate = useNavigate();
 
   const fetchData = () => {
     auth.onAuthStateChanged((user) => {
-      if (!user) navigate("/login");
+      if (!user  && user.email !== "maxat.dzhetenbaev@gmail.com") navigate('/');
     });
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     fetchData();
   }, []);
 

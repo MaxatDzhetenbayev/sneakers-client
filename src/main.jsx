@@ -14,6 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Panel } from "./pages/Panel";
 import { CreateProduct } from "./pages/CreateProduct";
 import { ProductList } from "./pages/ProductList";
+import { AdminAuthCheck } from "./components/AdminAuthCheck";
 
 const router = createBrowserRouter([
   {
@@ -29,18 +30,17 @@ const router = createBrowserRouter([
     ],
   },
   {
-    element: <Panel/>,
-    path: "admin",
+    element: <AdminAuthCheck><Panel/></AdminAuthCheck> ,
+
     children: [
       {
-        path: "create",
-        element: <CreateProduct/>,
+        path: "admin",
+        element: <ProductList/>,
       },
       {
-        path: "products",
-        element: <ProductList/>,
+        path: "admin/create",
+        element: <CreateProduct/>,
       }
-
     ]
   }
 ]);

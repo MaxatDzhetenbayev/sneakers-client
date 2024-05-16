@@ -56,7 +56,7 @@ export const Profile = () => {
         className="button button__red"
         onClick={() => {
           signOut(auth);
-          navigate("");
+          navigate("/");
         }}
       >
         Выйти с аккаунта

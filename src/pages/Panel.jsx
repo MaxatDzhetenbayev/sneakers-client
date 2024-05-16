@@ -7,10 +7,10 @@ export const Panel = () => {
             <header>
                 <ul style={{}}>
                     <li>
-                        <Link to="products">Список продуктов</Link>
+                        <Link to="admin">Список продуктов</Link>
                     </li>
                     <li>
-                        <Link to="create">Создание продукта</Link>
+                        <Link to="admin/create">Создание продукта</Link>
                     </li>
                 </ul>
             </header>
