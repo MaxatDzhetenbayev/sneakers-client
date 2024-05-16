@@ -7,7 +7,7 @@ export const AdminAuthCheck = ({ children }) => {
 
   const fetchData = () => {
     auth.onAuthStateChanged((user) => {
-      if (!user  && user.email !== "maxat.dzhetenbaev@gmail.com") navigate('/');
+      if (!user  && user.email !== "admin@gmail.com") navigate('/');
     });
   };
 
