@@ -63,6 +63,9 @@ export const deleteClothes = async (id) => {
 
 
 export const addToCart = async (item, userId, size) => {
+
+  if(!size) return toast.error("Выберите размер!");
+
   const cartRef = collection(db, "carts");
   const cartQuery = query(
     cartRef,
@@ -129,10 +132,11 @@ export const removeFromCart = async (userId, productId, size, isDelete = true) =
       console.log("Удален продукт из корзины с ID: ", document.id);
       return;
     }
-    // if (cartData.count === 0) {
-    //   await deleteDoc(doc(db, "carts", document.id));
-    //   return
-    // }
+
+    if (cartData.options[size].count === 0) {
+      await setDoc(docRef, { ...cartData, options: { ...cartData.options, [size]: { count: 0 } } });
+      return
+    }
 
     await setDoc(docRef, { ...cartData, options: { ...cartData.options, [size]: { count: cartData.options[size].count - 1 } } });
   } catch (error) {
@@ -201,10 +205,19 @@ export const addToOrder = async (user) => {
 
     const clothesSnapshot = await getDocs(clothesQuery);
     const clothesItems = clothesSnapshot.docs.map((doc) => {
+
+      const optionsData = cartListData.find((item) => item.productId === doc.id).options;
+      const readyData = Object.keys(optionsData).map((key) => {
+        return {
+          size: key,
+          count: optionsData[key].count,
+        };
+      });
+
       return {
         id: doc.id,
         ...doc.data(),
-        options: cartListData.find((item) => item.productId === doc.id).options,
+        options: readyData,
       };
     });
 
@@ -219,8 +232,6 @@ export const addToOrder = async (user) => {
       date: new Date().toLocaleString(),
     });
 
-
-    console.log(clothesItems)
 
     emailjs
       .send('service_j3kkoql', 'template_d6iil4i', { orderId, email, products: clothesItems }, 'myx63XfRfUvzWa19x',)

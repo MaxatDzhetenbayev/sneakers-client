@@ -9,6 +9,13 @@ function Card({ id, title, imageurl, price, options, onPlus, loading = false }) 
   const user = useAuth();
 
   const [clotheActiveOptions, setClotheActiveOptions] = useState({ size: null })
+
+
+  const fetchAddToCart =  () => {
+    addToCart({id, options}, user?.uid, clotheActiveOptions.size)
+    setClotheActiveOptions({ size: null })
+  }
+
   return (
     <div className={styles.card}>
       {loading ? (
@@ -33,9 +40,9 @@ function Card({ id, title, imageurl, price, options, onPlus, loading = false }) 
           <div>
             <span>Размеры:</span>
             <ul className={styles.colors} style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-              {options.map(({ size, count }, index) => (
+              {options.sort((a, b) => a.size - b.size).map(({ size, count }) => (
                 <li
-                  key={index}
+                  key={size}
                 >
                   <button
                     disabled={count === 0}
@@ -44,6 +51,7 @@ function Card({ id, title, imageurl, price, options, onPlus, loading = false }) 
                       padding: "5px 10px",
                       borderRadius: 8,
                       border: "none",
+                      cursor: "pointer",
                       backgroundColor: clotheActiveOptions.size === size ? "#9dd558" : "",
                       color: clotheActiveOptions.size === size ? "white" : ""
                     }}
@@ -62,7 +70,7 @@ function Card({ id, title, imageurl, price, options, onPlus, loading = false }) 
             {onPlus && (
               <img
                 className={styles.plus}
-                onClick={() => addToCart({id, options}, user?.uid, clotheActiveOptions.size  )}
+                onClick={fetchAddToCart}
                 src={false ? "img/btn-checked.svg" : "img/btn-plus.svg"}
                 alt="Plus"
               />

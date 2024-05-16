@@ -20,8 +20,18 @@ const showStatus = (status) => {
   }
 };
 
-const totalPrice = (items) =>
-  items?.reduce((sum, obj) => (sum + +obj.price) * +obj.count, 0);
+
+
+  const totalPrice = (cartItems) =>  cartItems?.reduce((sum, obj) => {
+    const options = obj.options
+    let totalItemPrice = 0
+    for (const key in options) {
+
+      totalItemPrice += options[key].count * obj.price
+    }
+    return totalItemPrice + sum
+  }
+    , 0);
 
 export const Profile = () => {
   const [orders, setOrders] = useState([]);
@@ -66,17 +76,22 @@ export const Profile = () => {
             orders.map((order) => {
               return (
                 <div className="profile__order" key={order.id}>
-                  <p>Заказ № - {order.id}</p>
-                  <p>Статус - {showStatus(order.status)}</p>
-                  <p>Сумма заказа - {totalPrice(order.products)}</p>
-                  <p>Дата заказа: {order.date}</p>
-                  <p>Товары в заказе:</p>
+                  <p><strong>Заказ №</strong>  - {order.id}</p>
+                  <p><strong>Статус</strong> - {showStatus(order.status)}</p>
+                  <p><strong>Сумма заказа</strong> - {totalPrice(order.products)}</p>
+                  <p><strong>Дата заказа</strong> - {order.date}</p>
+                  <strong>Товары в заказе:</strong>
                   <ul>
-                    {order.products.map((item) => (
-                      <li key={item.id}>
-                        {item.title} - {item.count} шт.
+                    {order.products.map((item) => {
+                     
+                     
+                     return <li key={item.id}>
+                        <strong>{item.title}</strong> 
+                        <ul>
+                          {item.options.map((option) => <li> Размер {option.size} - {option.count}шт</li>)}
+                        </ul> 
                       </li>
-                    ))}
+                    })}
                   </ul>
                 </div>
               );
