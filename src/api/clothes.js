@@ -64,7 +64,7 @@ export const deleteClothes = async (id) => {
 
 export const addToCart = async (item, userId, size) => {
 
-  if(!size) return toast.error("Выберите размер!");
+  if (!size) return toast.error("Выберите размер!");
 
   const cartRef = collection(db, "carts");
   const cartQuery = query(
@@ -114,7 +114,6 @@ export const removeFromCart = async (userId, productId, size, isDelete = true) =
       where("userId", "==", userId),
       where("productId", "==", productId)
     );
-
     const cartSnapshot = await getDocs(q);
 
     if (cartSnapshot.empty) {
@@ -127,18 +126,36 @@ export const removeFromCart = async (userId, productId, size, isDelete = true) =
     const cartData = cartSnapshot.docs[0].data();
 
     if (isDelete) {
-      const document = cartSnapshot.docs[0];
-      await deleteDoc(doc(db, "carts", document.id));
-      console.log("Удален продукт из корзины с ID: ", document.id);
+      await deleteDoc(docRef);
+      console.log("Удален продукт из корзины с ID: ", docId);
       return;
     }
 
-    if (cartData.options[size].count === 0) {
-      await setDoc(docRef, { ...cartData, options: { ...cartData.options, [size]: { count: 0 } } });
-      return
-    }
+    const currentCount = cartData.options[size]?.count || 0;
 
-    await setDoc(docRef, { ...cartData, options: { ...cartData.options, [size]: { count: cartData.options[size].count - 1 } } });
+    if (currentCount > 1) {
+      await setDoc(docRef, {
+        ...cartData,
+        options: {
+          ...cartData.options,
+          [size]: { count: currentCount - 1 }
+        }
+      });
+    } else {
+      const updatedOptions = { ...cartData.options };
+      delete updatedOptions[size];
+
+      if (Object.keys(updatedOptions).length === 0) {
+        await deleteDoc(docRef);
+        console.log("Удален продукт из корзины с ID: ", docId);
+      } else {
+        await setDoc(docRef, {
+          ...cartData,
+          options: updatedOptions
+        });
+        console.log("Обновлено количество продукта в корзине с ID: ", docId);
+      }
+    }
   } catch (error) {
     console.error("Ошибка при удалении продукта из корзины: ", error);
   }
